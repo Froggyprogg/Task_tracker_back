@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	desc "github.com/Task_tracker_back/pkg/user_v1"
 	"google.golang.org/grpc"
@@ -16,17 +17,41 @@ type server struct {
 	desc.UnimplementedUserV1Server
 }
 
-// GET ...
-func (s *server) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
-	log.Printf("User id: %d", req.GetId())
+// GETUser ПОЛУЧЕНИЕ ПОЛЬЗОВАТЕЛЯ
+func (s *server) GetUser(ctx context.Context, req *desc.GetRequestUser) (*desc.GetResponseUser, error) {
+	log.Printf("User id: %d", req.GetIdUser())
 
-	return &desc.GetResponse{
-		Info: &desc.UserInfo{
-			Id:      req.GetId(),
-			Name:    "Anton",
-			IsHuman: false,
-		},
+	return &desc.GetResponseUser{ //TODO: прописать запросы к БД, чтобы возвращали данные из БД.
+		IdUser:    req.GetIdUser(),
+		Login:     "Test Subject",
+		IsManager: false,
 	}, nil
+}
+
+// Валидация логина и пароля пользователя
+// TODO: Добавить запрос к бд, проверяющий пароль и логин
+func (s *server) ValidateUser(ctx context.Context, req *desc.GetRequestAuth) (*desc.GetResponseAuth, error) {
+	if req.GetLogin() == "" {
+		return &desc.GetResponseAuth{IsValidated: false}, errors.New("Login invalid")
+	}
+
+	if req.GetPassword() == "" {
+		return &desc.GetResponseAuth{IsValidated: false}, errors.New("Password invalid")
+	}
+
+	return &desc.GetResponseAuth{IsValidated: false}, nil
+}
+
+// Изменение email пользователя
+// TODO: Запрос к БД (конкретный id, email).
+func (s *server) UpdateMail(ctx context.Context, req *desc.PutRequestMail) (*desc.PutResponseMail, error) {
+	idUser := req.GetIdUser()
+	fmt.Println("Email: ", req.GetEmail(), ", UserID: ", idUser)
+	if req.GetEmail() == "" {
+		return &desc.PutResponseMail{}, errors.New("Mail invalid or missing!")
+	}
+
+	return &desc.PutResponseMail{Email: req.GetEmail()}, nil
 }
 
 func main() {
