@@ -72,7 +72,7 @@ func (c *userV1Client) CreateUser(ctx context.Context, in *PostRequestUser, opts
 	return out, nil
 }
 
-// UserV1Server is the server API for UserV1 service.
+// UserV1Server is the user API for UserV1 service.
 // All implementations must embed UnimplementedUserV1Server
 // for forward compatibility
 type UserV1Server interface {

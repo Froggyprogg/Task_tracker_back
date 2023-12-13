@@ -327,7 +327,7 @@ func (c *boardV1Client) DeleteComments(ctx context.Context, in *GetResponseComme
 	return out, nil
 }
 
-// BoardV1Server is the server API for BoardV1 service.
+// BoardV1Server is the user API for BoardV1 service.
 // All implementations must embed UnimplementedBoardV1Server
 // for forward compatibility
 type BoardV1Server interface {
