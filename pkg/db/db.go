@@ -33,7 +33,6 @@ func NewDatabaseConnection(cfg *config.Config) *gorm.DB {
 	log.Println("Database connection successful")
 
 	db.AutoMigrate(&models.User{})
-	//db.Create(&models.User{Login: "D3ADL0RD", Password: "oralcumshot", Email: "test@mail.ru", IsManager: false})
 
 	return db
 }

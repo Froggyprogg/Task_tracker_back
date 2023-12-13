@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	board "github.com/Task_tracker_back/pkg/board_v1"
 	"github.com/Task_tracker_back/pkg/config"
 	"github.com/Task_tracker_back/pkg/db"
 	"github.com/Task_tracker_back/pkg/models"
+	desc "github.com/Task_tracker_back/pkg/user_v1"
 	"github.com/Task_tracker_back/pkg/utils"
-	"github.com/Task_tracker_back/user_v1"
+	"github.com/go-passwd/validator"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gorm.io/gorm"
@@ -16,11 +19,13 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 )
 
 type server struct {
-	__.UnimplementedUserV1Server
+	desc.UnimplementedUserV1Server
+	board.UnimplementedBoardV1Server
 }
 
 var (
@@ -28,18 +33,17 @@ var (
 )
 
 // GETUser ПОЛУЧЕНИЕ ПОЛЬЗОВАТЕЛЯ
-func (s *server) GetUser(ctx context.Context, req *__.GetRequestUser) (*__.GetResponseUser, error) {
+func (s *server) GetUser(ctx context.Context, req *desc.GetRequestUser) (*desc.GetResponseUser, error) {
 	idUser := req.GetIdUser()
-	log.Printf("User id: %d", idUser)
 
 	var user models.User
 	database.First(&user, idUser)
 
 	if user.ID == 0 {
-		return &__.GetResponseUser{}, errors.New("Invalid User ID!")
+		return &desc.GetResponseUser{}, errors.New("Invalid User ID!")
 	}
 
-	return &__.GetResponseUser{
+	return &desc.GetResponseUser{
 		IdUser:    user.ID,
 		Login:     user.Login,
 		IsManager: user.IsManager,
@@ -47,7 +51,7 @@ func (s *server) GetUser(ctx context.Context, req *__.GetRequestUser) (*__.GetRe
 }
 
 // Валидация логина и пароля пользователя
-func (s *server) ValidateUser(ctx context.Context, req *__.GetRequestAuth) (*__.GetResponseAuth, error) {
+func (s *server) ValidateUser(ctx context.Context, req *desc.GetRequestAuth) (*desc.GetResponseAuth, error) {
 	login := req.GetLogin()
 	password := req.GetPassword()
 
@@ -66,37 +70,74 @@ func (s *server) ValidateUser(ctx context.Context, req *__.GetRequestAuth) (*__.
 		return &__.GetResponseAuth{IsValidated: false}, errors.New("Login incorrect")
 	}
 
-	if user.Password != password {
-		return &__.GetResponseAuth{IsValidated: false}, errors.New("Password incorrect")
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return &desc.GetResponseAuth{}, errors.New("Password incorrect")
 	}
 
-	return &__.GetResponseAuth{IsValidated: true}, nil
+	return &desc.GetResponseAuth{IsValidated: true}, nil
 }
 
 // Изменение email пользователя
-func (s *server) UpdateMail(ctx context.Context, req *__.PutRequestMail) (*__.PutResponseMail, error) {
+func (s *server) UpdateMail(ctx context.Context, req *desc.PutRequestMail) (*desc.PutResponseMail, error) {
 	idUser := req.GetIdUser()
 	mail := req.GetEmail()
-	fmt.Println("Email: ", req.GetEmail(), ", UserID: ", idUser)
 
-	if mail == "" {
-		return &__.PutResponseMail{}, errors.New("Mail invalid or missing!")
+	if utils.ValidateEmail(mail) {
+		return &desc.PutResponseMail{}, errors.New("Mail invalid or missing!")
 	}
 
 	var user models.User
-
 	database.First(&user, idUser)
 
 	if user.ID == 0 {
 		return &__.PutResponseMail{}, errors.New("User is not created!")
 	}
 
-	if utils.ValidateEmail(mail) {
-		database.Model(&user).Update("email", mail)
-		return &__.PutResponseMail{Email: mail}, nil
+	database.Model(&user).Update("email", mail)
+	return &desc.PutResponseMail{Email: mail}, nil
+}
+
+func (s *server) CreateUser(ctx context.Context, req *desc.PostRequestUser) (*desc.PostResponseUser, error) {
+	login := req.GetLogin()
+	password := req.GetPassword()
+	mail := req.GetEmail()
+	isManager := req.GetIsManager()
+
+	if utils.ValidateEmail(mail) == false {
+		return &desc.PostResponseUser{}, errors.New("Mail invalid or missing!")
 	}
 
-	return &__.PutResponseMail{}, errors.New("Mail invalid or missing!")
+	if utils.CheckEmpty(login) {
+		return &desc.PostResponseUser{}, errors.New("Login invalid or missing!")
+	}
+
+	if utils.CheckEmpty(password) {
+		return &desc.PostResponseUser{}, errors.New("Password invalid or missing!")
+	}
+
+	var user models.User
+	database.Where(&models.User{Login: login}).Or(&models.User{Email: mail}).First(&user)
+
+	if utils.CheckEmpty(user.ID) {
+		return &desc.PostResponseUser{}, errors.New("Login or email is already taken or exists!")
+	}
+
+	passwordValidator := validator.New(validator.MinLength(8, errors.New("Password is too short")), validator.MaxLength(32, errors.New("Password is too long")))
+	err := passwordValidator.Validate(password)
+	if err != nil {
+		return &desc.PostResponseUser{}, err
+	}
+
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), 8)
+
+	if err != nil {
+		return &desc.PostResponseUser{}, errors.New("Hash error")
+	}
+
+	newUser := models.NewUser(login, string(hashed), mail, isManager) //models.User{}
+	database.Create(&newUser)
+
+	return &desc.PostResponseUser{IdUser: strconv.Itoa(int(newUser.ID))}, nil
 }
 
 func main() {
@@ -111,7 +152,8 @@ func main() {
 
 	s := grpc.NewServer()
 	reflection.Register(s)
-	__.RegisterUserV1Server(s, &server{})
+	desc.RegisterUserV1Server(s, &server{})
+	board.RegisterBoardV1Server(s, &server{})
 
 	log.Printf("server listening at %d", lis.Addr())
 

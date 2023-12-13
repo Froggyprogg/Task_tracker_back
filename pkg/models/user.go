@@ -7,3 +7,7 @@ type User struct {
 	Email     string `gorm:"not null"`
 	IsManager bool   `gorm:"not null"`
 }
+
+func NewUser(login, password, email string, IsManager bool) *User {
+	return &User{Login: login, Password: password, Email: email, IsManager: IsManager}
+}

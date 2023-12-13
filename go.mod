@@ -11,6 +11,7 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/go-passwd/validator v0.0.0-20180902184246-0b4c967e436b // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.5.0 // indirect
 	github.com/ilyakaznacheev/cleanenv v1.5.0 // indirect

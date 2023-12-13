@@ -25,6 +25,7 @@ type UserV1Client interface {
 	GetUser(ctx context.Context, in *GetRequestUser, opts ...grpc.CallOption) (*GetResponseUser, error)
 	ValidateUser(ctx context.Context, in *GetRequestAuth, opts ...grpc.CallOption) (*GetResponseAuth, error)
 	UpdateMail(ctx context.Context, in *PutRequestMail, opts ...grpc.CallOption) (*PutResponseMail, error)
+	CreateUser(ctx context.Context, in *PostRequestUser, opts ...grpc.CallOption) (*PostResponseUser, error)
 }
 
 type userV1Client struct {
@@ -62,6 +63,15 @@ func (c *userV1Client) UpdateMail(ctx context.Context, in *PutRequestMail, opts 
 	return out, nil
 }
 
+func (c *userV1Client) CreateUser(ctx context.Context, in *PostRequestUser, opts ...grpc.CallOption) (*PostResponseUser, error) {
+	out := new(PostResponseUser)
+	err := c.cc.Invoke(ctx, "/user_v1.UserV1/CreateUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserV1Server is the server API for UserV1 service.
 // All implementations must embed UnimplementedUserV1Server
 // for forward compatibility
@@ -69,6 +79,7 @@ type UserV1Server interface {
 	GetUser(context.Context, *GetRequestUser) (*GetResponseUser, error)
 	ValidateUser(context.Context, *GetRequestAuth) (*GetResponseAuth, error)
 	UpdateMail(context.Context, *PutRequestMail) (*PutResponseMail, error)
+	CreateUser(context.Context, *PostRequestUser) (*PostResponseUser, error)
 	mustEmbedUnimplementedUserV1Server()
 }
 
@@ -84,6 +95,9 @@ func (UnimplementedUserV1Server) ValidateUser(context.Context, *GetRequestAuth) 
 }
 func (UnimplementedUserV1Server) UpdateMail(context.Context, *PutRequestMail) (*PutResponseMail, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateMail not implemented")
+}
+func (UnimplementedUserV1Server) CreateUser(context.Context, *PostRequestUser) (*PostResponseUser, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
 func (UnimplementedUserV1Server) mustEmbedUnimplementedUserV1Server() {}
 
@@ -152,6 +166,24 @@ func _UserV1_UpdateMail_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserV1_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PostRequestUser)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserV1Server).CreateUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user_v1.UserV1/CreateUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserV1Server).CreateUser(ctx, req.(*PostRequestUser))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserV1_ServiceDesc is the grpc.ServiceDesc for UserV1 service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +202,10 @@ var UserV1_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateMail",
 			Handler:    _UserV1_UpdateMail_Handler,
+		},
+		{
+			MethodName: "CreateUser",
+			Handler:    _UserV1_CreateUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

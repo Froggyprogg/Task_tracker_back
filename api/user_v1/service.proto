@@ -4,12 +4,11 @@ package user_v1;
 
 option go_package = "./";
 
-import "google/protobuf/timestamp.proto";
-
 service UserV1{
   rpc GetUser(GetRequestUser) returns (GetResponseUser);
   rpc ValidateUser(GetRequestAuth) returns (GetResponseAuth);
   rpc UpdateMail(PutRequestMail) returns (PutResponseMail);
+  rpc CreateUser(PostRequestUser) returns (PostResponseUser);
 }
 
 // GetUser
@@ -20,7 +19,8 @@ message GetRequestUser {
 message GetResponseUser{
   uint32 id_user = 1;
   string login = 2;
-  bool isManager = 3;
+  string email = 3;
+  bool isManager = 4;
 }
 
 // CheckPassword
@@ -44,6 +44,19 @@ message PutResponseMail{
 }
 //
 
+// Create user
+message PostRequestUser {
+  string login = 2;
+  string password = 3;
+  string email = 4;
+  bool isManager = 5;
+}
+
+message PostResponseUser{
+  string id_user = 1;
+}
+//
+
 message User {
   uint32 id_user = 1;
   string login = 2;
@@ -52,70 +65,3 @@ message User {
   bool isManager = 5;
 }
 
-message Boards {
-  uint32 id_board = 1;
-  string name = 2;
-  bool private = 3;
-  repeated uint32 id_column = 4;
-}
-
-message Tasks {
-  uint32 id_task = 1;
-  uint32 id_column = 2;
-  string name = 3;
-  google.protobuf.Timestamp start_date = 4;
-  google.protobuf.Timestamp end_date = 5;
-  uint32 priority = 6;
-  string description = 7;
-  uint32 id_status = 8;
-}
-
-message Subtasks {
-  uint32 id_subtask = 1;
-  string name = 2;
-  google.protobuf.Timestamp start_date = 3;
-  google.protobuf.Timestamp end_date = 4;
-  uint32 priority = 5;
-  string descriptions = 6;
-  uint32 id_status = 7;
-  uint32 id_task = 8;
-}
-
-message UserBoard {
-  uint32 id_user_board = 1;
-  uint32 id_role = 2;
-  uint32 id_board = 3;
-  uint32 id_user = 4;
-}
-
-message Comments {
-  uint32 id_comment = 1;
-  uint32 id_user_board = 2;
-  uint32 id_task = 3;
-  uint32 id_subtask = 4;
-  uint32 id_report = 5;
-  string comment = 6;
-  string file = 7;
-}
-
-message Statuses {
-  uint32 id_status = 1;
-  string name = 2;
-}
-
-message Reports {
-  uint32 id_report = 1;
-  string report_text = 2;
-  repeated uint32 id_file = 3;
-}
-
-message Column {
-  uint32 id_column = 1;
-  string name = 2;
-}
-
-message Roles {
-  uint32 id_role = 1;
-  string name = 2;
-  uint32 id_board = 3;
-}

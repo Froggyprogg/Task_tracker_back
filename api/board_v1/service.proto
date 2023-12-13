@@ -1,0 +1,217 @@
+syntax = "proto3";
+
+package board_v1;
+
+option go_package = "./";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service BoardV1{
+  //GET
+  rpc GetBoard(GetRequestBoard) returns (GetResponseBoard);
+  rpc GetTask(GetRequestTask) returns (GetResponseTask);
+  rpc GetTasks(GetRequestTasks) returns (GetResponseTasks);
+  rpc GetSubtasks(GetRequestSubtasks) returns (GetResponseSubtasks);
+  rpc GetUserAtBoard(GetRequestUserAtBoard) returns (GetResponseUserAtBoard);
+  rpc GetColumns(GetRequestColumns) returns (GetResponseColumns);
+  rpc GetStatus(GetRequestStatus) returns (GetResponseStatus);
+  rpc GetAllStatuses(GetRequestStatuses) returns (GetResponseStatuses);
+  rpc GetReports(GetRequestStatuses) returns (GetResponseStatuses);
+  rpc GetRoles(GetRequestRoles) returns (GetResponseRoles);
+
+  //PUT
+  rpc PutColumn(Columns) returns (Columns);
+  rpc PutReports(Reports) returns (Reports);
+  rpc PutBoard(Boards) returns (Boards);
+  rpc PutTask(Tasks) returns (Tasks);
+  rpc PutSubtask(Subtasks) returns (Subtasks);
+  rpc PutComments(Comments) returns (Comments);
+  rpc AddUserToBoard(UsersBoard) returns (UsersBoard);
+
+  //POST
+  rpc AddColumn(Columns) returns (Columns);
+  rpc AddReports(Reports) returns (Reports);
+  rpc CreateBoard(Boards) returns (Boards);
+  rpc AddTask(Tasks) returns (Tasks);
+  rpc AddSubtask(Subtasks) returns (Subtasks);
+  rpc AddComments(Comments) returns (Comments);
+
+  //DELETE
+  rpc DeleteColumn(GetRequestColumns) returns (google.protobuf.Empty);
+  rpc DeleteReports(GetResponseReport) returns (google.protobuf.Empty);
+  rpc DeleteBoard(GetResponseBoard) returns (google.protobuf.Empty);
+  rpc DeleteTask(GetResponseTask) returns (google.protobuf.Empty);
+  rpc DeleteSubtask(GetResponseSubtasks) returns (google.protobuf.Empty);
+  rpc DeleteComments(GetResponseComments) returns (google.protobuf.Empty);
+}
+
+// GetBoard
+message GetRequestBoard {
+  uint32 id_board = 1;
+}
+
+message GetResponseBoard{
+  Boards board = 1;
+}
+
+//GetTask
+message GetRequestTask {
+  uint32 id_task = 1;
+}
+
+message GetResponseTask {
+  Tasks task = 1;
+}
+
+// GetTasks
+message GetRequestTasks {
+  uint32 id_column = 1;
+}
+
+message GetResponseTasks {
+  repeated Tasks tasks = 1;
+}
+
+// GetSubtasks
+message GetRequestSubtasks {
+  uint32 id_task = 1;
+}
+
+message GetResponseSubtasks {
+  repeated Subtasks subtasks = 1;
+}
+
+// Userboard
+message GetRequestUserAtBoard {
+  uint32 id_board = 1;
+}
+
+message GetResponseUserAtBoard {
+  repeated UsersBoard userboard = 1;
+}
+
+// Column
+message GetRequestColumns {
+  uint32 id_board = 1;
+}
+
+message GetResponseColumns {
+  repeated Columns columns = 1;
+}
+
+// Comments
+
+message GetRequestComments{
+  uint32 id_task = 1;
+  uint32 id_subtask = 2;
+}
+
+message GetResponseComments{
+  repeated Comments comments = 1;
+}
+
+// Statuses
+
+message GetRequestStatus {
+  uint32 id_statuses = 1;
+}
+
+message GetResponseStatus {
+  Statuses status = 1;
+}
+
+message GetRequestStatuses {
+  uint32 id_statuses = 1;
+}
+
+message GetResponseStatuses {
+  repeated Statuses status = 1;
+}
+
+// Reports
+
+message GetRequestReport{
+  uint32 id_report = 1;
+}
+
+message GetResponseReport{
+  Reports report = 1;
+}
+
+// Roles
+
+message GetRequestRoles{
+  uint32 id_role = 1;
+}
+
+message GetResponseRoles{
+  repeated Roles roles = 1;
+}
+
+//
+
+message Boards {
+  uint32 id_board = 1;
+  string name = 2;
+  bool private = 3;
+}
+
+message Tasks {
+  uint32 id_task = 1;
+  uint32 id_column = 2;
+  string name = 3;
+  google.protobuf.Timestamp start_date = 4;
+  google.protobuf.Timestamp end_date = 5;
+  uint32 priority = 6;
+  string description = 7;
+  uint32 id_status = 8;
+}
+
+message Subtasks {
+  uint32 id_subtask = 1;
+  string name = 2;
+  google.protobuf.Timestamp start_date = 3;
+  google.protobuf.Timestamp end_date = 4;
+  uint32 priority = 5;
+  string descriptions = 6;
+  uint32 id_status = 7;
+  uint32 id_task = 8;
+}
+
+message UsersBoard {
+  uint32 id_user_board = 1;
+  uint32 id_role = 2;
+  uint32 id_board = 3;
+  uint32 id_user = 4;
+}
+
+message Comments {
+  uint32 id_comment = 1;
+  uint32 id_user_board = 2;
+  uint32 id_task = 3;
+  uint32 id_subtask = 4;
+  uint32 id_report = 5;
+  string comment = 6;
+}
+
+message Statuses {
+  uint32 id_status = 1;
+  string name = 2;
+}
+
+message Reports {
+  uint32 id_report = 1;
+  string report_text = 2;
+}
+
+message Columns {
+  uint32 id_column = 1;
+  string name = 2;
+  uint32 id_board = 3;
+}
+
+message Roles {
+  uint32 id_role = 1;
+  string name = 2;
+}
