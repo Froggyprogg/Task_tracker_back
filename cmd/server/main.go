@@ -55,19 +55,19 @@ func (s *server) ValidateUser(ctx context.Context, req *desc.GetRequestAuth) (*d
 	login := req.GetLogin()
 	password := req.GetPassword()
 
-	if login == "" {
-		return &__.GetResponseAuth{IsValidated: false}, errors.New("Login invalid")
+	if utils.CheckEmpty(login) {
+		return &desc.GetResponseAuth{}, errors.New("Login invalid")
 	}
 
-	if password == "" {
-		return &__.GetResponseAuth{IsValidated: false}, errors.New("Password invalid")
+	if utils.CheckEmpty(password) {
+		return &desc.GetResponseAuth{}, errors.New("Password invalid")
 	}
 
 	var user models.User
 	database.Where(&models.User{Login: login}).First(&user)
 
-	if user.Login == "" {
-		return &__.GetResponseAuth{IsValidated: false}, errors.New("Login incorrect")
+	if utils.CheckEmpty(user.Login) {
+		return &desc.GetResponseAuth{}, errors.New("Login incorrect")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
@@ -89,8 +89,8 @@ func (s *server) UpdateMail(ctx context.Context, req *desc.PutRequestMail) (*des
 	var user models.User
 	database.First(&user, idUser)
 
-	if user.ID == 0 {
-		return &__.PutResponseMail{}, errors.New("User is not created!")
+	if utils.CheckEmpty(user.ID) {
+		return &desc.PutResponseMail{}, errors.New("User is not created!")
 	}
 
 	database.Model(&user).Update("email", mail)

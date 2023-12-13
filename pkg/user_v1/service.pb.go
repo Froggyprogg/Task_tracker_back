@@ -414,10 +414,7 @@ type PostResponseUser struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	IdBoard  uint32   `protobuf:"varint,1,opt,name=id_board,json=idBoard,proto3" json:"id_board,omitempty"`
-	Name     string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Private  bool     `protobuf:"varint,3,opt,name=private,proto3" json:"private,omitempty"`
-	IdColumn []uint32 `protobuf:"varint,4,rep,packed,name=id_column,json=idColumn,proto3" json:"id_column,omitempty"`
+	IdUser string `protobuf:"bytes,1,opt,name=id_user,json=idUser,proto3" json:"id_user,omitempty"`
 }
 
 func (x *PostResponseUser) Reset() {
