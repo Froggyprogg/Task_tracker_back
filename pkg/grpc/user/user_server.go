@@ -34,12 +34,12 @@ func (s *server) GetUser(ctx context.Context, req *desc.GetRequestUser) (*desc.G
 	var user models.User
 	database.First(&user, idUser)
 
-	if user.ID == 0 {
+	if user.IdUser == 0 {
 		return &desc.GetResponseUser{}, errors.New("Invalid User ID!")
 	}
 
 	return &desc.GetResponseUser{
-		IdUser:    user.ID,
+		IdUser:    user.IdUser,
 		Login:     user.Login,
 		IsManager: user.IsManager,
 	}, nil
@@ -84,7 +84,7 @@ func (s *server) UpdateMail(ctx context.Context, req *desc.PutRequestMail) (*des
 	var user models.User
 	database.First(&user, idUser)
 
-	if utils.CheckEmpty(user.ID) {
+	if utils.CheckEmpty(user.IdUser) {
 		return &desc.PutResponseMail{}, errors.New("User is not created!")
 	}
 
@@ -113,7 +113,7 @@ func (s *server) CreateUser(ctx context.Context, req *desc.PostRequestUser) (*de
 	var user models.User
 	database.Where(&models.User{Login: login}).Or(&models.User{Email: mail}).First(&user)
 
-	if utils.CheckEmpty(user.ID) {
+	if utils.CheckEmpty(user.IdUser) {
 		return &desc.PostResponseUser{}, errors.New("Login or email is already taken or exists!")
 	}
 
@@ -132,5 +132,5 @@ func (s *server) CreateUser(ctx context.Context, req *desc.PostRequestUser) (*de
 	newUser := models.NewUser(login, string(hashed), mail, isManager) //models.User{}
 	database.Create(&newUser)
 
-	return &desc.PostResponseUser{IdUser: strconv.Itoa(int(newUser.ID))}, nil
+	return &desc.PostResponseUser{IdUser: strconv.Itoa(int(newUser.IdUser))}, nil
 }
