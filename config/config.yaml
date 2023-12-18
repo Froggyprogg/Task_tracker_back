@@ -2,8 +2,11 @@ env: "local"
 grpc:
   port: 50051
   timeout: 5s
+#sudo docker ps --format "table {{.ID}}\t{{.Status}}\t{{.Names}}"- Поиск ID контейнера
+#docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' dfc77a297f40 - поиск IP-адресса контейнера. dfc77a297f40 - ID контейнера.
+#Полученный адресс вводим в host
 db:
-  host: "localhost"
+  host: "172.18.0.3"
   user: "postgres"
   password: "admin"
   dbname: "task_tracker"

@@ -17,3 +17,11 @@ generate-board:
 	protoc --go_out=pkg/board_v1 --go_opt=paths=import \
 			--go-grpc_out=pkg/board_v1 --go-grpc_opt=paths=import \
 			api/board_v1/service.proto
+
+PHONY: build-docker
+build-docker:
+	sudo docker compose up -d  --build
+
+PHONY: open-psql
+open-psql:
+	sudo -u postgres psql
