@@ -14,3 +14,7 @@ type Comment struct {
 	Report      Report
 	Comment     string `gorm:"not null"`
 }
+
+func NewComment(userBoardID, taskID, subtaskID, reportID uint32, comment string) *Comment {
+	return &Comment{UserBoardID: userBoardID, TaskID: taskID, SubtaskID: subtaskID, ReportID: reportID, Comment: comment}
+}

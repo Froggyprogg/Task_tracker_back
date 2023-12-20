@@ -1,6 +1,9 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
 
 type Board struct {
 	gorm.Model
@@ -11,4 +14,9 @@ type Board struct {
 
 func NewBoard(Name string, Private bool) *Board {
 	return &Board{Name: Name, Private: Private}
+}
+
+func (b *Board) AfterDelete(tx *gorm.DB) (err error) {
+	tx.Clauses(clause.Returning{}).Where("board_id = ?", b.ID).Delete(&Board{})
+	return
 }

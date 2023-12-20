@@ -1,6 +1,9 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
 
 type User struct {
 	//Id        uint32 `gorm:"primaryKey"`
@@ -13,4 +16,9 @@ type User struct {
 
 func NewUser(login, password, email string, IsManager bool) *User {
 	return &User{Login: login, Password: password, Email: email, IsManager: IsManager}
+}
+
+func (u *User) AfterDelete(tx *gorm.DB) (err error) {
+	tx.Clauses(clause.Returning{}).Where("user_id = ?", u.ID).Delete(&User{})
+	return
 }

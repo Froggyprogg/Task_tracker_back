@@ -1,6 +1,9 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
 
 type Column struct {
 	gorm.Model
@@ -12,4 +15,9 @@ type Column struct {
 
 func NewColumn(Name string, BoardID uint32) *Column {
 	return &Column{Name: Name, BoardID: BoardID}
+}
+
+func (c *Column) AfterDelete(tx *gorm.DB) (err error) {
+	tx.Clauses(clause.Returning{}).Where("column_id = ?", c.ID).Delete(&Column{})
+	return
 }
