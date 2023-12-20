@@ -22,6 +22,10 @@ PHONY: build-docker
 build-docker:
 	sudo docker compose up -d  --build
 
+PHONY: run-container
+run-container:
+	 sudo docker compose up -d
+
 PHONY: open-psql
 open-psql:
-	sudo -u postgres psql
+	sudo docker exec -it postgres psql -U postgres
