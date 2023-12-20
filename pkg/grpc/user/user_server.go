@@ -34,12 +34,12 @@ func (s *server) GetUser(ctx context.Context, req *desc.GetRequestUser) (*desc.G
 	var user models.User
 	database.First(&user, idUser)
 
-	if user.IdUser == 0 {
+	if user.ID == 0 {
 		return &desc.GetResponseUser{}, errors.New("Invalid User ID!")
 	}
 
 	return &desc.GetResponseUser{
-		IdUser:    user.IdUser,
+		IdUser:    uint32(user.ID),
 		Login:     user.Login,
 		IsManager: user.IsManager,
 	}, nil
@@ -84,7 +84,7 @@ func (s *server) UpdateMail(ctx context.Context, req *desc.PutRequestMail) (*des
 	var user models.User
 	database.First(&user, idUser)
 
-	if utils.CheckEmpty(user.IdUser) {
+	if utils.CheckEmpty(user.ID) {
 		return &desc.PutResponseMail{}, errors.New("User is not created!")
 	}
 
@@ -113,12 +113,19 @@ func (s *server) CreateUser(ctx context.Context, req *desc.PostRequestUser) (*de
 	var user models.User
 	database.Where(&models.User{Login: login}).Or(&models.User{Email: mail}).First(&user)
 
-	if utils.CheckEmpty(user.IdUser) {
+	if utils.CheckEmpty(user.ID) {
 		return &desc.PostResponseUser{}, errors.New("Login or email is already taken or exists!")
 	}
 
+	loginValidator := validator.New(validator.MinLength(8, errors.New("Login is too short")), validator.MaxLength(64, errors.New("Login is too long")))
+	err := loginValidator.Validate(login)
+	if err != nil {
+		return &desc.PostResponseUser{}, err
+	}
+	err = nil
+
 	passwordValidator := validator.New(validator.MinLength(8, errors.New("Password is too short")), validator.MaxLength(32, errors.New("Password is too long")))
-	err := passwordValidator.Validate(password)
+	err = passwordValidator.Validate(password)
 	if err != nil {
 		return &desc.PostResponseUser{}, err
 	}
@@ -132,5 +139,5 @@ func (s *server) CreateUser(ctx context.Context, req *desc.PostRequestUser) (*de
 	newUser := models.NewUser(login, string(hashed), mail, isManager) //models.User{}
 	database.Create(&newUser)
 
-	return &desc.PostResponseUser{IdUser: strconv.Itoa(int(newUser.IdUser))}, nil
+	return &desc.PostResponseUser{IdUser: strconv.Itoa(int(newUser.ID))}, nil
 }

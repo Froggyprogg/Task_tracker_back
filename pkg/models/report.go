@@ -1,7 +1,9 @@
 package models
 
+import "gorm.io/gorm"
+
 type Report struct {
-	IdReport   uint32 `gorm:"primaryKey;autoIncrement"`
+	gorm.Model
 	ReportText string `gorm:"type:varchar(300);not null"`
 }
 

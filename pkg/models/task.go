@@ -2,15 +2,22 @@ package models
 
 import (
 	"github.com/golang/protobuf/ptypes/timestamp"
+	"gorm.io/gorm"
 )
 
 type Task struct {
-	IdTask      uint32 `gorm:"primaryKey;autoIncrement"`
-	IdColumn    uint32
-	Name        string `gorm:"type:varchar(50);not null"`
-	StartDate   timestamp.Timestamp
-	EndDate     timestamp.Timestamp
-	Priority    uint32
-	Description string
-	IdStatus    uint32
+	gorm.Model
+	Name        string              `gorm:"type:varchar(50);not null"`
+	StartDate   timestamp.Timestamp `gorm:"type:date; autoCreateTime;"`
+	EndDate     timestamp.Timestamp `gorm:"type:date; not null"`
+	Priority    uint                `gorm:"not null"`
+	Description string              `gorm:"type:varchar(300); not null"`
+	StatusID    uint32              `gorm:"not null"`
+	ColumnID    uint32              `gorm:"not null"`
+	Status      Status
+	Column      Column
+}
+
+func NewTask(Name, Description string, Priority uint, ColumnID uint32) *Task {
+	return &Task{Name: Name, Description: Description, Priority: Priority, ColumnID: ColumnID}
 }

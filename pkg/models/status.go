@@ -1,8 +1,10 @@
 package models
 
+import "gorm.io/gorm"
+
 type Status struct {
-	IdStatus uint32 `gorm:"primary key;autoIncrement"`
-	Name     string `gorm:"type:varchar(100);not null"`
+	gorm.Model
+	Name string `gorm:"type:varchar(100);not null"`
 }
 
 func NewStatus(Name string) *Status {

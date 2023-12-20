@@ -32,7 +32,7 @@ func Run(cfg *config.Config) *App {
 	user.Register(gRPCServer, database)
 	board.Register(gRPCServer, database)
 
-	log.Printf("user listening at %d", lis.Addr())
+	log.Printf("server listening at %d", lis.Addr())
 
 	if err = gRPCServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %d", err)

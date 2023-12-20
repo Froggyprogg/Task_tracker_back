@@ -1,12 +1,14 @@
 package models
 
+import "gorm.io/gorm"
+
 type Board struct {
-	IdBoard  uint32 `gorm:"primaryKey;autoIncrement:true"`
-	Name     string `gorm:"type:varchar(100);not null"`
-	Private  bool   `gorm:"not null; default: false"`
-	IdColumn uint32 `gorm:"not null"`
+	gorm.Model
+	Name    string `gorm:"type:varchar(100);not null"`
+	Private bool   `gorm:"not null; default: false"`
+	Column  []Column
 }
 
-func NewBoard(Name string) *Board {
-	return &Board{Name: Name}
+func NewBoard(Name string, Private bool) *Board {
+	return &Board{Name: Name, Private: Private}
 }

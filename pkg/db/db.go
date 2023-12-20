@@ -14,6 +14,7 @@ var (
 	err error
 )
 
+// DisableForeignKeyConstraintWhenMigrating: true,
 func NewDatabaseConnection(cfg *config.Config) *gorm.DB {
 	db, err = gorm.Open(postgres.Open(
 		fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
@@ -24,7 +25,7 @@ func NewDatabaseConnection(cfg *config.Config) *gorm.DB {
 			cfg.DB.Port,
 			cfg.DB.SSLMode,
 			cfg.DB.Timezone)),
-		&gorm.Config{})
+		&gorm.Config{DisableForeignKeyConstraintWhenMigrating: false})
 
 	if err != nil {
 		panic(err)
@@ -32,7 +33,7 @@ func NewDatabaseConnection(cfg *config.Config) *gorm.DB {
 
 	log.Println("Database connection successful")
 
-	db.AutoMigrate(&models.User{}, &models.Board{}, &models.Role{}, &models.UserBoard{}) //
+	db.AutoMigrate(&models.User{}, &models.Board{}, &models.Role{}, &models.Column{}, &models.UserBoard{}, &models.Task{}, &models.Subtask{}, &models.Status{}, &models.Report{}, &models.Comment{})
 
 	return db
 }
