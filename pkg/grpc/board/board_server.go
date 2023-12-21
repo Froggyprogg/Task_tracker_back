@@ -26,43 +26,136 @@ func Register(gRPCServer *grpc.Server, db *gorm.DB) {
 
 // GET
 func (s *server) GetBoard(ctx context.Context, req *board.GetRequestBoard) (*board.GetResponseBoard, error) {
+	idBoard := req.GetIdBoard()
+
+	var boards models.Board
+	database.First(&boards, idBoard)
+
+	if boards.ID == 0 {
+		return &board.GetResponseBoard{}, errors.New("Invalid Board ID!")
+	}
 	return &board.GetResponseBoard{}, nil
 }
 
 func (s *server) GetTask(ctx context.Context, req *board.GetRequestTask) (*board.GetResponseTask, error) {
+	idTask := req.GetIdTask()
+
+	var tasks models.Task
+	database.First(&tasks, idTask)
+
+	if tasks.ID == 0 {
+		return &board.GetResponseTask{}, errors.New("Invalid Task ID!")
+	}
 	return &board.GetResponseTask{}, nil
 }
 
 func (s *server) GetTasks(ctx context.Context, req *board.GetRequestTasks) (*board.GetResponseTasks, error) {
+	idColumn := req.GetIdColumn()
+
+	var tasks models.Task
+	database.Where(&models.Task{ColumnID: idColumn}).First(&tasks)
+
+	if tasks.ID == 0 {
+		return &board.GetResponseTasks{}, errors.New("Invalid Column ID!")
+	}
 	return &board.GetResponseTasks{}, nil
 }
 
 func (s *server) GetSubtasks(ctx context.Context, req *board.GetRequestSubtasks) (*board.GetResponseSubtasks, error) {
+	idSubtask := req.GetIdTask()
+
+	var subTasks models.Subtask
+	database.First(&subTasks, idSubtask)
+
+	if subTasks.ID == 0 {
+		return &board.GetResponseSubtasks{}, errors.New("Invalid Subtask ID!")
+	}
 	return &board.GetResponseSubtasks{}, nil
 }
 
 func (s *server) GetUserAtBoard(ctx context.Context, req *board.GetRequestUserAtBoard) (*board.GetResponseUserAtBoard, error) {
+	idBoard := req.GetIdBoard()
+
+	var boards models.UserBoard
+	database.First(&boards, idBoard)
+
+	if boards.ID == 0 {
+		return &board.GetResponseUserAtBoard{}, errors.New("Invalid Board ID!")
+	}
 	return &board.GetResponseUserAtBoard{}, nil
 }
 
 func (s *server) GetColumns(ctx context.Context, req *board.GetRequestColumns) (*board.GetResponseColumns, error) {
+	idColumn := req.GetIdColumn()
+
+	var column models.Column
+	database.First(&column, idColumn)
+
+	if column.ID == 0 {
+		return &board.GetResponseColumns{}, errors.New("Invalid Column ID!")
+	}
 	return &board.GetResponseColumns{}, nil
 }
 
 func (s *server) GetStatus(ctx context.Context, req *board.GetRequestStatus) (*board.GetResponseStatus, error) {
+	idStatus := req.GetIdStatuses()
+
+	var status models.Status
+	database.First(&status, idStatus)
+
+	if status.ID == 0 {
+		return &board.GetResponseStatus{}, errors.New("Invalid Status ID!")
+	}
 	return &board.GetResponseStatus{}, nil
 }
 
 func (s *server) GetAllStatuses(ctx context.Context, req *board.GetRequestStatuses) (*board.GetResponseStatuses, error) {
+	idStatuses := req.GetIdStatuses()
+
+	var statuses models.Status
+	database.First(&statuses, idStatuses)
+
+	if statuses.ID == 0 {
+		return &board.GetResponseStatuses{}, errors.New("Invalid Statuses ID!")
+	}
 	return &board.GetResponseStatuses{}, nil
 }
 
-func (s *server) GetReports(ctx context.Context, req *board.GetRequestStatuses) (*board.GetResponseStatuses, error) {
-	return &board.GetResponseStatuses{}, nil
+func (s *server) GetReport(ctx context.Context, req *board.GetRequestReport) (*board.GetResponseReport, error) {
+	idReport := req.GetIdReport()
+
+	var reports models.Report
+	database.First(&reports, idReport)
+
+	if reports.ID == 0 {
+		return &board.GetResponseReport{}, errors.New("Invalid Report ID!")
+	}
+	return &board.GetResponseReport{}, nil
 }
 
 func (s *server) GetRoles(ctx context.Context, req *board.GetRequestRoles) (*board.GetResponseRoles, error) {
+	idRoles := req.GetIdRole()
+
+	var roles models.Role
+	database.First(&roles, idRoles)
+
+	if roles.ID == 0 {
+		return &board.GetResponseRoles{}, errors.New("Invalid Report ID!")
+	}
 	return &board.GetResponseRoles{}, nil
+}
+
+func (s *server) GetComments(ctx context.Context, req *board.GetRequestComments) (*board.GetResponseComments, error) {
+	idTask := req.GetIdTask()
+	idSubtask := req.GetIdSubtask()
+
+	var comments models.Comment
+	database.Where(&models.Comment{TaskID: idTask, SubtaskID: idSubtask}).First(&comments)
+
+	if comments.ID == 0 {
+		return &board.GetResponseComments{}, errors.New("Invalid Report ID!")
+	}
+	return &board.GetResponseComments{}, nil
 }
 
 ////////////////////////////////////////////////////////
@@ -315,7 +408,7 @@ func (s *server) AddComments(ctx context.Context, req *board.Comments) (*board.C
 
 // DELETE
 func (s *server) DeleteColumn(ctx context.Context, req *board.GetRequestColumns) (*emptypb.Empty, error) {
-	idColumn := req.GetIdBoard()
+	idColumn := req.GetIdColumn()
 
 	if utils.CheckEmpty(idColumn) {
 		return nil, errors.New("Column ID field is missing")

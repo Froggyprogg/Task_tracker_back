@@ -93,7 +93,7 @@ message GetResponseUserAtBoard {
 
 // Column
 message GetRequestColumns {
-  uint32 id_board = 1;
+  uint32 id_column = 1;
 }
 
 message GetResponseColumns {
