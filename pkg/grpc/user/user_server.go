@@ -113,7 +113,7 @@ func (s *server) CreateUser(ctx context.Context, req *desc.PostRequestUser) (*de
 	var user models.User
 	database.Where(&models.User{Login: login}).Or(&models.User{Email: mail}).First(&user)
 
-	if utils.CheckEmpty(user.ID) {
+	if user.ID > 0 {
 		return &desc.PostResponseUser{}, errors.New("Login or email is already taken or exists!")
 	}
 
